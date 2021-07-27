@@ -1,0 +1,523 @@
+#importing libraries
+import pandas as pd
+import csv
+import itertools
+import re
+from pathlib import Path
+
+#function(s) that findspaces uses
+def divide_chunks(l, n):  
+    for i in range(0, len(l), n):  
+        yield l[i:i + n] 
+
+def list_slice(S, step):
+    return [S[i::step] for i in range(step)]
+        
+#find the spaces in the mod_rows_list
+def findspaces(sequence):
+    values= []
+    values2= []
+    values3= []
+    values4= []
+    values5= []
+    values6= []
+    values7= []
+    values8= []
+    values9= []
+    values10= []
+    values11= []
+    values12= []
+    values13= []
+    values14= []
+    values15= []
+    values16= []
+    values17= []
+    values18= []
+    values19= []
+    for value in sequence:
+        values.append(value.find(' '))
+        values2.append(re.sub(' ', 'x', value, count=1))
+    for value in values2:
+        values3.append(value.find(' '))
+        values4.append(re.sub(' ', 'x', value, count=1))
+    for value in values4:
+        values5.append(value.find(' '))
+        values6.append(re.sub(' ', 'x', value, count=1))
+    for value in values6:
+        values7.append(value.find(' '))
+        values8.append(re.sub(' ', 'x', value, count=1))
+    for value in values8:
+        values9.append(value.find(' '))
+        values10.append(re.sub(' ', 'x', value, count=1))
+    for value in values10:
+        values11.append(value.find(' '))
+        values12.append(re.sub(' ', 'x', value, count=1))
+    for value in values12:
+        values13.append(value.find(' '))
+        values14.append(re.sub(' ', 'x', value, count=1))
+    for value in values14:
+        values15.append(value.find(' '))
+        values16.append(re.sub(' ', 'x', value, count=1))
+    for value in values16:
+        values17.append(value.find(' '))
+        values18.append(re.sub(' ', 'x', value, count=1))
+    for a,b,c,d,e,f,g,h,i in zip(values, values3, values5, values7, values9, values11, values13, values15, values17):
+        values19.append(a)
+        values19.append(b)
+        values19.append(c)
+        values19.append(d)
+        values19.append(e)
+        values19.append(f)
+        values19.append(g)
+        values19.append(h)
+        values19.append(i)
+    values20= list_slice(values19, 9)
+    return values20
+
+#Functions that find the 3 characters 'close bracket', 'dash', and 'open bracket' within the sequence data so that
+#another function can use those 3 characters as coordinates to slice out the sequence numbers themselves.
+#eg the sequence [10-20] will yield the outputs seqstart=0, seqmid=3, seqend=6
+def seqstart(sequence):
+    values= []
+    for value in sequence:
+        values.append(value.find('['))
+    return values
+
+def seqmid(sequence):
+    values= []
+    for value in sequence:
+        values.append(value.find('-'))
+    return values
+
+def seqend(sequence):
+    values= []
+    for value in sequence:
+        values.append(value.find(']'))
+    return values
+
+#defining a function for converting two numbers into a list whose range spans the 2 numbers
+#For sequences numbers 100 and 110, the result will be [100,101,102,103,104,105,106,017,108,109,110]
+
+def createrange(r1, r2): 
+    return list(range(r1, r2+1)) 
+
+#test= gather_files.gather_files(Path('data'))
+#test_names= []
+
+#for name in test:
+#    test_names.append(name)
+
+#print(test_names)
+
+#Loads the databank
+data = pd.read_csv('E:\exports\Sc_FLAG-Dsn1_WT-Ana_rKCTi_V2_101_PeptideGroups.txt',delimiter='\t')
+Area_columns = data.filter(regex='Area')
+Summed_rows = Area_columns.sum(axis=1)
+Sums_values= Summed_rows.tolist()
+
+
+#Generates the row numbers that contain modified peptides
+mod_rows= data['Modifications in Master Proteins'].dropna().index.values.tolist()
+all_seq_rows= data['Positions in Master Proteins'].index.values.tolist()
+
+#Applies row numbers to lits of values to obtain values at modified locations
+mod_values= Summed_rows.loc[mod_rows]
+
+#Generates a dataframe consisting of a single column populated with the row index values of modified peptides
+mod_rows_dataframe= data['Modifications in Master Proteins'].dropna()
+mod_rows_index_dataframe= pd.DataFrame(mod_rows_dataframe.index, index=None)
+mod_rows_index_dataframe_rename= mod_rows_index_dataframe.rename(columns = {0:9})
+
+
+#creates a dataframe where each modified protein is listed along with the sequence where it is modified
+#if a protein is modified more than once it will appear more than once in the dataframe
+sequences= data['Positions in Master Proteins']
+mod_sequences= sequences.loc[mod_rows]
+mod_sequences_dataframe = pd.DataFrame(mod_sequences, index=None)
+mod_sequences_fixed_column_name = mod_sequences_dataframe.rename(columns = {'Positions in Master Proteins': 'Prot1 Seq1 Prot2 Seq2 Prot3 Seq3 Prot4 Seq4 Prot5 Seq5'})
+mod_sequences_fixed_column_name.to_csv('mod_sequences_fixed_column_name', index= False)
+mod_split_sequence = pd.read_csv('mod_sequences_fixed_column_name',delimiter=' ')
+
+#converts the 'Modifications in Master Proteins' into a CSV where the protein name, mod name, and location
+#are all seperated
+exact_sequences= data['Modifications in Master Proteins']
+exact_mod_sequences= exact_sequences.loc[mod_rows]
+exact_mod_sequences_dataframe = pd.DataFrame(exact_mod_sequences, index=None)
+exact_mod_sequences_fixed_column_name = exact_mod_sequences_dataframe.rename(columns = {'Modifications in Master Proteins': 'Column1 Column2 Column3 Column4 Column5 Column6 Column7 Column8 Column9 Column10 Column11 Column12 Column13 Column14 Column15 Column 16 Column 17 Column18 Column19 Column20'})
+exact_mod_sequences_fixed_column_name.to_csv('mods', index= False)
+exact_mod_split_sequence = pd.read_csv('mods',delimiter=' ')
+
+
+#send 'Modifications in Master Proteins' to a list with dropped Na, but keeping the index. Then step through
+#that list separating proteins, modification names, modification quantities, and modification locations.
+
+#make a list of all the protein names, type, locations, and quantity
+mod_rows_list= data['Modifications in Master Proteins'].dropna().tolist()
+
+#list that contains all the locations of spaces in the mod_rows_list
+mod_rows_spaces= findspaces(mod_rows_list)
+
+#converting the giant list of spaces into individual locations for spaces
+mod_rows_spaces_dataframe= pd.DataFrame.from_records(mod_rows_spaces)
+mod_rows_spaces_dataframe_flip= mod_rows_spaces_dataframe.T
+
+#adding the row values to the mod_rows_spaces_dataframe_flip variable
+mod_rows_spaces_dataframe_flip_appended= pd.concat([mod_rows_spaces_dataframe_flip, mod_rows_index_dataframe_rename], axis=1)
+
+#makes a list whose values are the index
+mod_rows_index_list= mod_rows_spaces_dataframe_flip_appended[9]
+
+#each list containing a space for example. protein modification 'P12345 1xmethyl [10]' will yield space0=[6], 
+#space1=[15], space2= [-1], space3= [-1] 
+#(because once all spaces are detected all future space values will be -1)
+space0= mod_rows_spaces_dataframe_flip[0].tolist()
+space1= mod_rows_spaces_dataframe_flip[1].tolist()
+space2= mod_rows_spaces_dataframe_flip[2].tolist()
+space3= mod_rows_spaces_dataframe_flip[3].tolist()
+space4= mod_rows_spaces_dataframe_flip[4].tolist()
+space5= mod_rows_spaces_dataframe_flip[5].tolist()
+space6= mod_rows_spaces_dataframe_flip[6].tolist()
+space7= mod_rows_spaces_dataframe_flip[7].tolist()
+space8= mod_rows_spaces_dataframe_flip[8].tolist()
+
+#Makes a list of every protein with a modification along with the corresponding sequence where the 
+#modification exists
+# P12345 [10-20] and P54321 [100-110] will become Prot 1[P12345, P54321] and Seq1[[10-20], [100-110]]
+
+Prot1= mod_split_sequence['Prot1'].dropna().tolist()
+Seq1= mod_split_sequence['Seq1'].dropna().tolist()
+
+#generating a series of listst that contain coordinates for all 'close bracket', 'dash', and 'open bracket'
+#characters
+#eg the sequences [10-20] and [100-110] will become Seqstart1= [0,0] Seqmid1=[3,4] and Seqend= [6,7]
+Seqstart1= seqstart(Seq1)
+Seqmid1= seqmid(Seq1)
+Seqend1= seqend(Seq1)
+
+#Creating a series of lists that slice out the start integer and end integer of a sequence. Eg, for sequence
+#[10-20] and (100-110), the two lists will be Seq1number1 = [10, 100] and Seq1number2= [20,110]
+Seq1number1= []
+for value, location1, location2 in zip(Seq1,Seqstart1,Seqmid1):
+    Seq1number1.append(int(value[location1+1: location2]))
+Seq1number2= []
+for value, location1, location2 in zip(Seq1,Seqmid1,Seqend1):
+    Seq1number2.append(int(value[location1+1: location2]))
+
+#Converting the 2 numbers which correspond to the start and end of a sequence into a range
+#For sequences [10-20] and [100-110] Seq1-range will be [[10,11,12,13,14,15,16,17,18,19,20], [100,101,102,103
+#104,105, 106, 107, 108, 109, 110]]
+Seq1_range= []
+
+for number1,number2 in zip(Seq1number1, Seq1number2):
+    Seq1_range.append(createrange(number1, number2))
+
+#Defining dictionaries to put the protein/sequence combinations
+ProtSeq1= dict(zip(Prot1, Seq1_range)) 
+
+#mod_rows_spaces, but with all the -1 values removed
+mod_rows_spaces_drop1= []
+
+#lists for storing modification names, types, locations, the full sequence, and quantities
+Protein_modification_name= []
+Protein_modification_type= []
+Protein_modification_location= []
+Protein_modification_quantity= []
+Protein_modification_row= []
+Protein_modification_sequence= []
+Protein_modification_area= []
+
+#for loops that handle Name, Type, Location
+for value in mod_rows_list:
+    if (value[0: 1].isalpha()) is True:
+        Protein_modification_name.append(value[0:6])
+    if (value[7].isalpha()) is False:
+        Protein_modification_quantity.append(value[7])
+
+for value, area, location, row, sequence in zip(mod_rows_list, mod_values, space1, mod_rows_index_list, Seq1_range):
+    if (value[9].isalpha()) is True:
+        Protein_modification_type.append(value[9: location])
+        Protein_modification_row.append(row)
+        Protein_modification_area.append(area)
+        Protein_modification_sequence.append(sequence)
+        
+for value, location1, location2 in zip(mod_rows_list, space1, space2):
+    Protein_modification_location.append(value[location+1: location2])       
+
+#for loops handle Name, Type, Location
+for value, area, location, location2, location3, row, sequence in zip(mod_rows_list, mod_values, space2, space3, space4, mod_rows_index_list, Seq1_range):
+    if (value[location+1].isalpha()) is False :
+        Protein_modification_quantity.append(value[location+1])
+        Protein_modification_name.append(value[0:6])
+        Protein_modification_type.append(value[location+3: location2])
+        Protein_modification_location.append(value[location2+2 :location3])
+        Protein_modification_row.append(row)
+        Protein_modification_area.append(area)
+        Protein_modification_sequence.append(sequence)
+for value, area, location0, location1, location2, location3, location4, location5, location6, location7, location8, row, sequence in zip(mod_rows_list, mod_values, space0, space1, space2, space3, space4, space5, space6, space7, space8, mod_rows_index_list, Seq1_range):
+    try:
+        if  (value[location2+3] == ']') is True or (value[location2+3] == ';') is True:
+            Protein_modification_location.append(value[location2+2 : location2+3])
+            Protein_modification_name.append(value[0:6])
+            Protein_modification_quantity.append(value[location0 +1])
+            Protein_modification_type.append(value[location0+3 : location1])
+            Protein_modification_row.append(row)
+            Protein_modification_area.append(area)
+            Protein_modification_sequence.append(sequence)
+        if  (value[location2+4] == ']') is True or (value[location2+4] == ';') is True:
+            Protein_modification_location.append(value[location2+2 : location2+4])
+            Protein_modification_name.append(value[0:6])
+            Protein_modification_quantity.append(value[location0 +1])
+            Protein_modification_type.append(value[location0+3 : location1])
+            Protein_modification_row.append(row)
+            Protein_modification_area.append(area)
+            Protein_modification_sequence.append(sequence)
+        if  (value[location2+5] == ']') is True or (value[location2+5] == ';') is True:
+            Protein_modification_location.append(value[location2+2 : location2+5])
+            Protein_modification_name.append(value[0:6])
+            Protein_modification_quantity.append(value[location0 +1])
+            Protein_modification_type.append(value[location0+3 : location1])
+            Protein_modification_row.append(row)
+            Protein_modification_area.append(area)
+            Protein_modification_sequence.append(sequence)
+        if  (value[location2+6] == ']') is True or (value[location2+6] == ';') is True:
+            Protein_modification_location.append(value[location2+2 : location2+6])
+            Protein_modification_name.append(value[0:6])
+            Protein_modification_quantity.append(value[location0 +1])
+            Protein_modification_type.append(value[location0+3 : location1])
+            Protein_modification_row.append(row)
+            Protein_modification_area.append(area)
+            Protein_modification_sequence.append(sequence)
+            #
+        if location2 != -1 and (value[location2+1].isalpha()) is True and location3 != -1 and (value[location3+1].isalpha()) is True and (value[location3+3] == ']') is True:
+            Protein_modification_location.append(value[location3+2 : location3+3])
+            Protein_modification_name.append(value[0:6])
+            Protein_modification_quantity.append(value[location0 +1])
+            Protein_modification_type.append(value[location0+3 : location1])
+            Protein_modification_row.append(row)
+            Protein_modification_area.append(area)
+            Protein_modification_sequence.append(sequence)
+        if location2 != -1 and (value[location2+1].isalpha()) is True and location3 != -1 and (value[location3+1].isalpha()) is True and (value[location3+4] == ']') is True:
+            Protein_modification_location.append(value[location3+2 : location3+4])
+            Protein_modification_name.append(value[0:6])
+            Protein_modification_quantity.append(value[location0 +1])
+            Protein_modification_type.append(value[location0+3 : location1])
+            Protein_modification_row.append(row) 
+            Protein_modification_area.append(area)
+            Protein_modification_sequence.append(sequence)
+        if location2 != -1 and (value[location2+1].isalpha()) is True and location3 != -1 and (value[location3+1].isalpha()) is True and (value[location3+5] == ']') is True:
+            Protein_modification_location.append(value[location3+2 : location3+5])
+            Protein_modification_name.append(value[0:6])
+            Protein_modification_quantity.append(value[location0 +1])
+            Protein_modification_type.append(value[location0+3 : location1])
+            Protein_modification_row.append(row) 
+            Protein_modification_area.append(area)
+            Protein_modification_sequence.append(sequence)
+        if location2 != -1 and (value[location2+1].isalpha()) is True and location3 != -1 and (value[location3+1].isalpha()) is True and (value[location3+6] == ']') is True:
+            Protein_modification_location.append(value[location3+2 : location3+6])
+            Protein_modification_name.append(value[0:6])
+            Protein_modification_quantity.append(value[location0 +1])
+            Protein_modification_type.append(value[location0+3 : location1])
+            Protein_modification_row.append(row) 
+            Protein_modification_area.append(area)
+            Protein_modification_sequence.append(sequence)
+            #
+    except:
+        pass
+
+#mod combinations covered 1s, 1s+1s, 2s, 3s. mod combinations to cover: 3s+1, 2s+1s, 2s+2s, 3s+2s, 3s+3s, 1s+1s+1s 
+ 
+#replaces all N terminus values with 1
+Protein_modification_location_Nterm_fixed= []
+for value in Protein_modification_location:
+    Protein_modification_location_Nterm_fixed.append(value.replace('-Term', '1')) 
+        
+#removes all of the punctuation from locations
+Protein_modification_location_leftbracket_removed = []
+Protein_modification_location_rightbracket_removed = []
+Protein_modification_location_slash_removed = []
+Protein_modification_location_allpunc_removed = []
+for value in Protein_modification_location_Nterm_fixed:
+    Protein_modification_location_leftbracket_removed.append(value.replace('[', ''))
+for value in Protein_modification_location_leftbracket_removed:
+    Protein_modification_location_rightbracket_removed.append(value.replace(']', ''))
+for value in Protein_modification_location_rightbracket_removed:
+    Protein_modification_location_slash_removed.append(value.replace('/', ''))
+for value in Protein_modification_location_slash_removed:
+    Protein_modification_location_allpunc_removed.append(value.replace(';', ''))
+Protein_modification_location_1shifted= []
+
+
+for value in Protein_modification_location_allpunc_removed:
+    if (value[0].isalpha()) is True:
+        Protein_modification_location_1shifted.append(value[1:])    
+    else:
+        Protein_modification_location_1shifted.append(value[0:])       
+        
+#replaces all blank strings in a list with strings that have a single X
+Protein_modification_location_dataframe= pd.DataFrame.from_records(Protein_modification_location_1shifted)
+Protein_modification_location_dataframe_column0= Protein_modification_location_dataframe.iloc[:,[0]].fillna('X').rename(columns = {0:'zero'})
+Protein_modification_location_dataframe_column1= pd.concat([Protein_modification_location_dataframe_column0 ,Protein_modification_location_dataframe], axis=1)
+Protein_modification_location_dataframe_good_columns= Protein_modification_location_dataframe_column1.drop(Protein_modification_location_dataframe_column1.columns[1], axis=1).rename(columns = {'zero': 0})
+Protein_modification_location_dataframe_merged_columns= Protein_modification_location_dataframe_good_columns[0].map(str) + Protein_modification_location_dataframe_good_columns[1].map(str) + Protein_modification_location_dataframe_good_columns[2].map(str) + Protein_modification_location_dataframe_good_columns[3].map(str)
+Protein_modification_location_dataframe_tolist= Protein_modification_location_dataframe_merged_columns.tolist()
+Protein_modification_location_final = []
+for value in Protein_modification_location_dataframe_tolist:
+    Protein_modification_location_final.append(value.replace('None', ''))
+
+#lists for storing all mod locations, split into those designated by a letter, and those whose location is
+#designated by a number.
+Protein_modification_numbers= []
+Protein_modification_numbers_rows= []
+Protein_modification_numbers_name= []
+Protein_modification_numbers_type= []
+Protein_modification_numbers_quantity= []
+Protein_modification_numbers_area= []
+
+Seq1_range_long= []
+
+
+for long, short in itertools.zip_longest(Protein_modification_location_final, Seq1_range):
+    Seq1_range_long.append(short)
+    
+#splitting modifications into letters and numbers
+for value, area, row, name, _type, quantity, seqrange in zip(Protein_modification_location_final, Protein_modification_area, Protein_modification_row, Protein_modification_name, Protein_modification_type, Protein_modification_quantity, Protein_modification_sequence):
+    if (value[0].isalpha()) is True:
+        Protein_modification_numbers.append(seqrange)
+        Protein_modification_numbers_rows.append(row)
+        Protein_modification_numbers_name.append(name)
+        Protein_modification_numbers_type.append(_type)
+        Protein_modification_numbers_quantity.append(quantity)
+        Protein_modification_numbers_area.append(area)
+    else:
+        Protein_modification_numbers.append(value)
+        Protein_modification_numbers_rows.append(row)
+        Protein_modification_numbers_name.append(name)
+        Protein_modification_numbers_type.append(_type)
+        Protein_modification_numbers_quantity.append(quantity)
+        Protein_modification_numbers_area.append(area)
+    
+all_sequences= data['Positions in Master Proteins']
+#mod_sequences= sequences.loc[mod_rows]
+all_sequences_dataframe = pd.DataFrame(all_sequences, index=None)
+all_sequences_fixed_column_name = all_sequences_dataframe.rename(columns = {'Positions in Master Proteins': 'Prot1 Seq1 Prot2 Seq2 Prot3 Seq3 Prot4 Seq4 Prot5 Seq5'})
+all_sequences_fixed_column_name.to_csv('all_sequences_fixed_column_name', index= False)
+protein_split_sequence = pd.read_csv('all_sequences_fixed_column_name',delimiter=' ')
+
+allSeq1= protein_split_sequence['Seq1'].fillna('[0-0]').tolist()
+allProt1= protein_split_sequence['Prot1'].fillna('NoName').tolist()
+
+print(allSeq1)
+
+allSeqstart1= seqstart(allSeq1)
+allSeqmid1= seqmid(allSeq1)
+allSeqend1= seqend(allSeq1)
+
+allSeq1number1= []
+for value, location1, location2 in zip(allSeq1, allSeqstart1, allSeqmid1):
+    allSeq1number1.append(int(value[location1+1: location2]))
+
+allSeq1number2= []
+for value, location1, location2 in zip(allSeq1, allSeqmid1, allSeqend1):
+    allSeq1number2.append(int(value[location1+1: location2]))
+
+allSeq1_range= []
+
+for number1,number2 in zip(allSeq1number1, allSeq1number2):
+    allSeq1_range.append(createrange(number1, number2))
+
+protein_modification_numbers_name_long = []    
+
+for long, short in itertools.zip_longest(allProt1, Protein_modification_numbers_name):
+    protein_modification_numbers_name_long.append(short)
+    
+long_names = ['None' if v is None else v for v in protein_modification_numbers_name_long]
+
+mod_unmod_rows= {}
+mod_row_for_calc= []
+unmod_value_for_calc= []
+
+counter = len(allProt1)
+counter2 = len(allSeq1_range)
+counter3 = len(all_seq_rows)
+counter4 = len(Sums_values)
+
+print(counter)
+print(counter2)
+print(counter3)
+print(counter4)
+
+for allprot,allseq,seqrows, sums in zip(allProt1, allSeq1_range, all_seq_rows, Sums_values):
+    for modprot, modseq, modrow in zip(Protein_modification_numbers_name, Protein_modification_numbers,Protein_modification_numbers_rows):
+        try:
+            if (int(modseq) in allseq) is True and (modprot == allprot) is True:
+                mod_unmod_rows.update({modrow:seqrows})
+                mod_row_for_calc.append(modrow)
+                unmod_value_for_calc.append(sums)
+        except TypeError:
+            for modseq2 in modseq:
+                if (int(modseq2) in allseq) is True and (modprot == allprot) is True:
+                    mod_unmod_rows.update({modrow:seqrows})
+                    mod_row_for_calc.append(modrow)
+                    unmod_value_for_calc.append(sums)
+                    break
+
+Protein_modification_numbers_area_fixed= Protein_modification_numbers_area[1:] 
+
+calc_dataframe = pd.DataFrame({"a" : mod_row_for_calc, "b" :unmod_value_for_calc })
+grouped_row_values= calc_dataframe.groupby(by="a").sum().dropna()
+
+grouped_row= grouped_row_values['b'].index.values.tolist()
+grouped_values= grouped_row_values['b'].tolist()
+
+protein_names = []
+protein_types = []
+protein_location = []
+protein_occupancy = []
+
+grouped_row_long = []
+grouped_values_long = []
+
+for long, short in itertools.zip_longest(Protein_modification_numbers_name, grouped_row):
+    grouped_row_long.append(short)
+    
+for long, short in itertools.zip_longest(Protein_modification_numbers_area, grouped_values):
+    grouped_values_long.append(short)
+    
+for numname, typenum, numrow, numloc, numvalues in zip(
+Protein_modification_numbers_name, 
+Protein_modification_numbers_type, Protein_modification_numbers_rows, Protein_modification_numbers, 
+Protein_modification_numbers_area):
+    for groupedrow, groupedfloat in zip(grouped_row_long, grouped_values_long):
+        try:
+            if groupedrow == numrow:
+                protein_occupancy.append(((numvalues/groupedfloat)*100))
+                protein_names.append(numname), 
+                protein_types.append(typenum)
+                protein_location.append(numloc), 
+        except ZeroDivisionError:
+            protein_names.append(numname), 
+            protein_types.append(typenum)
+            protein_location.append(numloc), 
+            protein_occupancy.append('all peptides below quantitation limit')
+
+protein_occupancy_str= []
+
+for value in protein_occupancy:
+    if (type(value) == float) is True:
+        protein_occupancy_str.append(str(value))
+    else: 
+        protein_occupancy_str.append(value)
+    
+protein_occupancy_LODs_added= []
+
+for value in protein_occupancy_str:
+    protein_occupancy_LODs_added.append(value.replace('0.0', 'only modified peptide below quantitation limit')) 
+    
+protein_dataframe= pd.DataFrame({"Protein ID" : protein_names, "Modification type" :protein_types, 
+"Modification location" : protein_location, "Occupancy" : protein_occupancy })
+
+protein_dataframe_organized = protein_dataframe.sort_values(by ='Protein ID' , ascending=False)
+
+protein_dataframe_organized.to_csv('protein_dataframe_organized', index= False)
+
+print(protein_dataframe_organized)
