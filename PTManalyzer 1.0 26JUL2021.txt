@@ -100,7 +100,7 @@ def seqend(sequence):
 
 def createrange(r1, r2): 
     return list(range(r1, r2+1)) 
-
+#below is some hashed out optional code for finding your datafile
 #test= gather_files.gather_files(Path('data'))
 #test_names= []
 
@@ -109,7 +109,7 @@ def createrange(r1, r2):
 
 #print(test_names)
 
-#Loads the databank
+#Loads the databank, change 'E:\exports\.....' to the pathname of your datafile
 data = pd.read_csv('E:\exports\Sc_FLAG-Dsn1_WT-Ana_rKCTi_V2_101_PeptideGroups.txt',delimiter='\t')
 Area_columns = data.filter(regex='Area')
 Summed_rows = Area_columns.sum(axis=1)
@@ -517,7 +517,7 @@ protein_dataframe= pd.DataFrame({"Protein ID" : protein_names, "Modification typ
 "Modification location" : protein_location, "Occupancy" : protein_occupancy })
 
 protein_dataframe_organized = protein_dataframe.sort_values(by ='Protein ID' , ascending=False)
-
+#change 'protin_dataframe_organized' to the desired name of your output.
 protein_dataframe_organized.to_csv('protein_dataframe_organized', index= False)
 
 print(protein_dataframe_organized)
